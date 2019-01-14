@@ -197,7 +197,11 @@ public class DurableSession extends ClientSession {
 
     @Override
     public void enqueue(IMessagesStore.StoredMessage message) {
-        this.sessionsStore.queue(this.clientID).add(message);
+        final boolean added = this.sessionsStore.queue(this.clientID).offer(message);
+
+        if (!added) {
+            LOG.debug("DurableSession buffer full, message will be discarded for client. CId={}", this.clientID);
+        }
     }
 
     @Override
